@@ -13,7 +13,7 @@ class MarkerTrackerNode(Node):
         self.bridge = CvBridge()
         self.subscription = self.create_subscription(
             Image,
-            '/camera/image_raw',
+            '/overhead_camera/image',
             self.image_callback,
             10
         )
@@ -26,6 +26,7 @@ class MarkerTrackerNode(Node):
 
 
     def image_callback(self, msg: Image):
+        self.get_logger().info("Got image in callback")
         frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8') # OpenCV uses BGR, ROS does not, we need to convert
         h, w, _ = frame.shape
         self.get_logger().info(f"Picture size: {w}x{h}")
