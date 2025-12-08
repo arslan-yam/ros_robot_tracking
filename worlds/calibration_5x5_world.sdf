@@ -123,7 +123,7 @@
     <!-- Камера сверху, смотрит вниз на центр сцены -->
     <model name="overhead_camera">
       <!-- X Y Z roll pitch yaw -->
-      <pose>0 0 5 0 -1.57 0</pose>
+      <pose>0 0 5 0 1.57 0</pose>
       <static>true</static>
       <link name="link">
         <sensor name="camera_sensor" type="camera">
