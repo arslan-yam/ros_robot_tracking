@@ -23,39 +23,12 @@ class MarkerTrackerNode(Node):
         self.margin_of_error = 50
         self.lower_bound = np.array([0, 120, 70])
         self.upper_bound = np.array([10, 255, 255])
-        self.get_logger().info('MarkerTrackerNode started')
+        self.get_logger().info('MarkerTrackerNode started') 
 
-        #coordinates transform. make config for this?
-        abs_points = np.float32([
-        [-2.0, -2.0],
-        [ 2.0,  2.0],
-        [-2.0,  2.0]
-        ])
-
-        pixel_pts = np.float32([
-            [478.0, 399.0],
-            [160.0,  80.0],
-            [160.0, 399.0]
-        ])
-
-        # abs → pixel
-        self.transform = cv2.getAffineTransform(abs_points, pixel_pts)
-        # pixel → abs
-        self.invert_transform = cv2.invertAffineTransform(self.transform)
-
-    def pixel_to_absolute_coord(self, u, v):
-        uv = np.array([[[u, v]]], dtype=np.float32)  # shape (1,1,2)
-        XY = cv2.transform(uv, self.invert_transform)  # shape (1,1,2)
-        X, Y = XY[0,0]
-        return float(X), float(Y)
 
     def image_callback(self, msg: Image):
         self.get_logger().info("Got image in callback")
-        try:
-            frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8') # OpenCV uses BGR, ROS does not, we need to convert
-        except Exception as e:
-            self.get_logger().error("f: cv_bridge error: {Error}")
-            return
+        frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8') # OpenCV uses BGR, ROS does not, we need to convert
         h, w, _ = frame.shape
         self.get_logger().info(f"Picture size: {w}x{h}")
         hsv_image = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # convert picture BGR → HSV
@@ -79,9 +52,7 @@ class MarkerTrackerNode(Node):
         center_x = int(M["m10"] / M["m00"])
         center_y = int(M["m01"] / M["m00"])
         self.get_logger().info(f"Marker coordinates: x={center_x}, y={center_y}, area={marker_area:.2f}")
-        # convert to abs XY
-        X, Y = self.pixel_to_absolute_coord(center_x, center_y)
-        self.get_logger().info(f"World coords: X={X:.3f}, Y={Y:.3f}")
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -89,6 +60,3 @@ def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
