@@ -21,11 +21,29 @@ class MarkerTrackerNode(Node):
 
         #find right parameters
         self.margin_of_error = 50
-        self.lower_bound = np.array([0, 120, 70])
-        self.upper_bound = np.array([10, 255, 255])
-        self.get_logger().info('MarkerTrackerNode started') 
+        self.lower_bound = np.array([0, 0, 0])
+        self.upper_bound = np.array([180, 255, 70])
 
+        pix_pts = np.array([
+            [478.0, 399.0],  # (-2,-2)
+            [160.0,  80.0],  # ( 2, 2)
+            [160.0, 399.0],  # (-2, 2)
+        ], dtype=np.float32)
+        world_pts = np.array([
+            [-2.0, -2.0],
+            [ 2.0,  2.0],
+            [-2.0,  2.0],
+        ], dtype=np.float32)
+        self.A_pix_to_world = cv2.getAffineTransform(pix_pts, world_pts)
 
+        self.get_logger().info('MarkerTrackerNode started')
+
+    def pixel_to_world(self, u: float, v: float) -> tuple[float, float]:
+        A = self.A_pix_to_world
+        X = float(A[0, 0] * u + A[0, 1] * v + A[0, 2])
+        Y = float(A[1, 0] * u + A[1, 1] * v + A[1, 2])
+        return X, Y
+    
     def image_callback(self, msg: Image):
         self.get_logger().info("Got image in callback")
         frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8') # OpenCV uses BGR, ROS does not, we need to convert
@@ -51,8 +69,10 @@ class MarkerTrackerNode(Node):
         
         center_x = int(M["m10"] / M["m00"])
         center_y = int(M["m01"] / M["m00"])
-        self.get_logger().info(f"Marker coordinates: x={center_x}, y={center_y}, area={marker_area:.2f}")
-
+        X, Y = self.pixel_to_world(center_x, center_y)
+        self.get_logger().info(
+            f"Pixel(u,v)=({center_x:.1f},{center_y:.1f}) -> World(X,Y)=({X:.3f},{Y:.3f})"
+        )
 
 def main(args=None):
     rclpy.init(args=args)

@@ -1,10 +1,21 @@
 <?xml version="1.0"?>
 <sdf version="1.9">
-  <world name="calibration_world">
+<world name="calibration_world">
 
-    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors"/>
-    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
-    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
+<plugin filename="gz-sim-physics-system"
+          name="gz::sim::systems::Physics"/>
+
+<plugin filename="gz-sim-sensors-system"
+          name="gz::sim::systems::Sensors"/>
+
+<plugin filename="gz-sim-user-commands-system"
+          name="gz::sim::systems::UserCommands"/>
+
+<plugin filename="gz-sim-scene-broadcaster-system"
+          name="gz::sim::systems::SceneBroadcaster"/>
+  
+<plugin filename="gz-sim-apply-link-wrench-system"
+        name="gz::sim::systems::ApplyLinkWrench"/>
 
     <light name="sun_light" type="directional">
       <cast_shadows>true</cast_shadows>
@@ -40,72 +51,31 @@
             </plane>
           </geometry>
           <material>
-            <ambient>0.7 0.7 0.7 1</ambient>
-            <diffuse>0.7 0.7 0.7 1</diffuse>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>1 1 1 1</diffuse>
           </material>
         </visual>
       </link>
     </model>
 
     <model name="calib_cube_1">
-      <pose>-2 -2 0.1 0 0 0</pose>
+      <pose>2 2 0.05 0 0 0</pose>
       <static>true</static>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>0.2 0.2 0.2</size></box>
-          </geometry>
-          <material>
-            <ambient>1 0 0 1</ambient>
-            <diffuse>1 0 0 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
 
-    <model name="calib_cube_2">
-      <pose>2 -2 0.1 0 0 0</pose>
-      <static>true</static>
       <link name="link">
-        <visual name="visual">
+        <collision name="collision">
           <geometry>
-            <box><size>0.2 0.2 0.2</size></box>
+            <box><size>1 1 0.1</size></box>
           </geometry>
-          <material>
-            <ambient>0 1 0 1</ambient>
-            <diffuse>0 1 0 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
+        </collision>
 
-    <model name="calib_cube_3">
-      <pose>-2 2 0.1 0 0 0</pose>
-      <static>true</static>
-      <link name="link">
         <visual name="visual">
           <geometry>
-            <box><size>0.2 0.2 0.2</size></box>
+            <box><size>1 1 0.1</size></box>
           </geometry>
           <material>
-            <ambient>0 0 1 1</ambient>
-            <diffuse>0 0 1 1</diffuse>
-          </material>
-        </visual>
-      </link>
-    </model>
-
-    <model name="calib_cube_4">
-      <pose>2 2 0.1 0 0 0</pose>
-      <static>true</static>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <box><size>0.2 0.2 0.2</size></box>
-          </geometry>
-          <material>
-            <ambient>1 1 0 1</ambient>
-            <diffuse>1 1 0 1</diffuse>
+            <ambient>0 0 0 1</ambient>
+            <diffuse>0 0 0 1</diffuse>
           </material>
         </visual>
       </link>
@@ -117,7 +87,6 @@
       <link name="link">
         <sensor name="camera_sensor" type="camera">
           <topic>/overhead_camera/image</topic>
-          <pose>0 0 0 0 0 0</pose>
           <always_on>1</always_on>
           <update_rate>30</update_rate>
           <camera>
@@ -136,6 +105,5 @@
         </sensor>
       </link>
     </model>
-
   </world>
 </sdf>
