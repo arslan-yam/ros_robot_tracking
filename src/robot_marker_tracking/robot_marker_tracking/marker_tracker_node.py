@@ -14,7 +14,8 @@ class MarkerTrackerNode(Node):
     def __init__(self):
         super().__init__('marker_tracker_node')
         self.publisher = self.create_publisher(Path, '/robot_path', 10)  # publish path
-        self.timer = self.create_timer(0.1, self.publish_path)  # publish every 0.1 sec
+        self.latest_position = None
+        self.timer = self.create_timer(1.0, self.publish_path) # publish every 1 sec
         self.path = Path()  # create path object for rviz
         self.path.header.frame_id = "map"
         self.bridge = CvBridge()
@@ -51,8 +52,25 @@ class MarkerTrackerNode(Node):
         return X, Y
     
     def publish_path(self):
+        if self.latest_position is None:
+            return
+
+        X, Y = self.latest_position
+
+        pose = PoseStamped()
+        pose.header.stamp = self.get_clock().now().to_msg()
+        pose.header.frame_id = "map"
+        pose.pose.position.x = X
+        pose.pose.position.y = Y
+        pose.pose.position.z = 0.0
+
+        self.path.poses.append(pose)
+
+        if len(self.path.poses) > 100000:
+            self.path.poses.pop(0)
+
+        self.path.header.stamp = pose.header.stamp
         self.publisher.publish(self.path)
-        self.get_logger().info(f"Publishing path with {len(self.path.poses)} poses")
 
     def image_callback(self, msg: Image):
         self.get_logger().info("Got image in callback")
@@ -82,13 +100,7 @@ class MarkerTrackerNode(Node):
         X, Y = self.pixel_to_world(center_x, center_y)
 
         # create pose for current path
-        pose = PoseStamped()
-        pose.header.stamp = self.get_clock().now().to_msg()
-        pose.header.frame_id = "map"
-        pose.pose.position.x = X
-        pose.pose.position.y = Y
-        pose.pose.position.z = 0.0  # we flatten
-        self.path.poses.append(pose)
+        self.latest_position = (X, Y)
         if len(self.path.poses) > 100000:  # last 100000 poses
             self.path.poses.pop(0)
 
