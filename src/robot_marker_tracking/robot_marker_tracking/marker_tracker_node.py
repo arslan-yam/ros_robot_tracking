@@ -6,7 +6,7 @@ from rclpy.qos import qos_profile_sensor_data
 
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-from geometry_msgs.msg import PoseStamped
+from nav_msgs.msg import Path
 
 from . import config
 from .transform import AffinePixelToWorld
@@ -22,12 +22,7 @@ class MarkerTrackerNode(Node):
 
         self.log = AppLogger(self, component="MARKER_TRACKER")  # logger wrapper
 
-        self.publisher = self.create_publisher(
-            type=__import__("nav_msgs.msg", fromlist=["Path"]).Path,  # avoids extra import line noise
-            topic=config.PATH_TOPIC,
-            qos_profile=10,
-        )  # publish path
-
+        self.publisher = self.create_publisher(Path, config.PATH_TOPIC, 10)  # publish path
         self.latest_position = None
 
         self.timer = PeriodicTimer(self, config.PUBLISH_PERIOD_SEC, self.publish_path)  # publish every 1 sec
@@ -45,7 +40,7 @@ class MarkerTrackerNode(Node):
         # pixel -> world transform
         self.pix_to_world = AffinePixelToWorld(config.PIX_PTS, config.WORLD_PTS)
 
-        # marker detector
+        # find right parameters
         self.detector = MarkerDetector(config.HSV_RANGE, config.MARGIN_OF_ERROR_AREA)
 
         self.log.info("MarkerTrackerNode started")
@@ -55,16 +50,9 @@ class MarkerTrackerNode(Node):
             return
 
         X, Y = self.latest_position.x, self.latest_position.y
+        stamp = self.get_clock().now().to_msg()
 
-        pose = PoseStamped()
-        pose.header.stamp = self.get_clock().now().to_msg()
-        pose.header.frame_id = config.FRAME_ID
-        pose.pose.position.x = X
-        pose.pose.position.y = Y
-        pose.pose.position.z = 0.0
-
-        self.path_recorder.add_pose(pose)
-        self.path_recorder.set_stamp_from_pose(pose)
+        self.path_recorder.add_xy(X, Y, stamp)
         self.publisher.publish(self.path_recorder.path)
 
     def image_callback(self, msg: Image):
