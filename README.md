@@ -79,9 +79,18 @@ ros2 launch robot_marker_tracking tracking.launch.py
 ### Публикации
 - `/robot_path` (`nav_msgs/Path`) — траектория движения робота в frame `map`
 
+## 7. Docker
 
+Docker image доступен в DockerHub:
 
-## 7. Ограничения
+`arslanyam/ros-robot-tracking:latest`
+
+### Pull
+```bash
+docker pull arslanyam/ros-robot-tracking:latest
+```
+
+## 8. Ограничения
 
 - Детекция основана на цвете и чувствительна к освещению
 - Используется аффинное преобразование, требующее предварительной калибровки
