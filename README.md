@@ -1,3 +1,37 @@
-# ros_robot_tracking
+# ROS Robot Tracking — Final Project Documentation
 
-Implementation of an algorithm for detecting the robot's position using an external camera using colored markers. We use Python, numpy, matplotlib, OpenCV, ROS
+## 1. Общая информация о проекте
+
+**Название проекта:** ROS Robot Tracking  
+**Описание:**  
+По картинке с внешней камерой система позволяет отслеживать позицию робота в абсолютных координатах использую цветную метку в реальном времени. Система реализована в среде ROS и использует методы компьютерного зрения (OpenCV) для обработки изображения и rviz для визуализации его траектории
+
+---
+
+## 2. Что видит пользователь
+
+Пользователь системы видит:
+
+1. Выделенную цветную метку на роботе в Gazebo.
+2. Определённое положение робота (координаты).
+3. Публикуемые в ROS данные, доступные другим узлам:
+   - позиция робота,
+   - траектория движения в rviz.
+
+Пользователь может:
+- запускать систему через ROS launch;
+- подписываться на топики с данными локализации;
+- использовать данные в навигации или управлении.
+
+---
+
+## 3. Архитектура системы
+
+### 3.1 Общая архитектурная схема
+
+```mermaid
+flowchart LR
+    Camera[External Camera] -->|Image Stream| VisionNode[Marker Detection Node]
+    VisionNode -->|Robot Pose| ROS[ROS Topics]
+    ROS --> Control[Navigation / Control Node]
+    ROS --> Visualization[RViz / Logger]
