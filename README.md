@@ -33,5 +33,4 @@
 flowchart LR
     Camera[External Camera] -->|Image Stream| VisionNode[Marker Detection Node]
     VisionNode -->|Robot Pose| ROS[ROS Topics]
-    <!-- ROS --> Control[Navigation / Control Node] -->
     ROS --> Visualization[RViz / Logger]
