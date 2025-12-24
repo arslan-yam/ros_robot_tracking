@@ -1,4 +1,4 @@
-# ROS Robot Tracking — Final Project Documentation
+# ROS Robot Tracking
 
 ## 1. Общая информация о проекте
 
